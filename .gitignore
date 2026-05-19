@@ -1,0 +1,21 @@
+node_modules/
+dist/
+build-out/
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+
+# NEEWE runtime state (per-project, never committed in fw repo)
+.neewe/state.json
+.neewe/.cost-log
+.neewe/handoffs/
+.neewe/squads/active.json
+.neewe/gates/
+.neewe/events.jsonl
+.neewe/dashboard-token
+
+# Local Claude Code config
+.claude/settings.local.json
+CLAUDE.local.md
