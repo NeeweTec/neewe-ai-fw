@@ -1,0 +1,101 @@
+name: Publish to neewe-ai-marketplace
+
+# Triggers on tag push (v*) — e.g. `git tag v0.2.0 && git push --tags`.
+# Builds the neewe-core plugin from src/ and pushes it to NeeweTec/neewe-ai-marketplace.
+#
+# REQUIRED SETUP (one-time, by the repo owner):
+# 1. Create a GitHub Personal Access Token (PAT) with `repo` scope.
+# 2. In this repo's settings: Settings → Secrets and variables → Actions → New repository secret.
+#    - Name: NEEWE_MARKETPLACE_PAT
+#    - Value: <the PAT>
+# 3. Tag a release: git tag v0.2.0 && git push --tags
+# 4. This workflow runs, builds, and pushes to the marketplace repo.
+#
+# Until the PAT is configured, this workflow will fail on the push step — that's expected.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version_override:
+        description: 'Version tag to use (e.g. v0.2.0). Leave blank to derive from latest tag.'
+        required: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout neewe-ai-fw
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ -n "${{ inputs.version_override }}" ]; then
+            VERSION="${{ inputs.version_override }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "version_no_v=${VERSION#v}" >> $GITHUB_OUTPUT
+          echo "Building version: ${VERSION}"
+
+      - name: Checkout neewe-ai-marketplace
+        uses: actions/checkout@v4
+        with:
+          repository: NeeweTec/neewe-ai-marketplace
+          token: ${{ secrets.NEEWE_MARKETPLACE_PAT }}
+          path: marketplace
+          fetch-depth: 1
+
+      - name: Build neewe-core into marketplace
+        env:
+          NEEWE_MARKETPLACE_PATH: ${{ github.workspace }}/marketplace
+        run: |
+          chmod +x build/build.sh
+          bash build/build.sh
+
+      - name: Bump plugin.json + marketplace.json versions
+        run: |
+          cd marketplace
+          jq --arg v "${{ steps.version.outputs.version_no_v }}" \
+            '.version = $v' plugins/neewe-core/.claude-plugin/plugin.json > plugin.tmp
+          mv plugin.tmp plugins/neewe-core/.claude-plugin/plugin.json
+          jq --arg v "${{ steps.version.outputs.version_no_v }}" \
+            '.version = $v | .plugins[0].version = $v' .claude-plugin/marketplace.json > mkt.tmp
+          mv mkt.tmp .claude-plugin/marketplace.json
+          echo "Bumped plugin.json:"
+          cat plugins/neewe-core/.claude-plugin/plugin.json
+          echo "Bumped marketplace.json:"
+          cat .claude-plugin/marketplace.json
+
+      - name: Commit + push to marketplace
+        env:
+          FW_SHA: ${{ github.sha }}
+        run: |
+          cd marketplace
+          git config user.name "NEEWE Bot"
+          git config user.email "neewe-bot@noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to publish."
+            exit 0
+          fi
+          git commit -m "release: ${{ steps.version.outputs.version }} (from neewe-ai-fw@${FW_SHA::7})
+
+          Published from NeeweTec/neewe-ai-fw tag ${{ steps.version.outputs.version }}.
+
+          Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
+          git push origin main
+
+      - name: Tag marketplace with same version
+        run: |
+          cd marketplace
+          git tag "${{ steps.version.outputs.version }}"
+          git push origin "${{ steps.version.outputs.version }}"
