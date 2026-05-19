@@ -145,7 +145,10 @@ function compileAgent(manifest, archetypeDir, name) {
 
   const compiledBy = `<!-- NEEWE-MANIFEST-COMPILED: v${m.version} layer=${m.layer} archetype=${m.archetype} — do not hand-edit; modify src/manifests/${archetypeDir ? archetypeDir + '/' : ''}${name}/manifest.json instead -->`;
 
-  return `---\n${fm.join('\n')}\n---\n\n${compiledBy}\n\n${m.identity.trim()}\n`;
+  // NEEWE-LAW (i18n) appended to every compiled agent. Single source of truth.
+  const i18nBlock = `## NEEWE-LAW (i18n)\n\nAddress the USER in \`state.locale.user_language\` (auto-detected by SessionStart). Produce ALL ARTIFACTS — code, identifiers, comments, commits, vault entries, ADRs, reports — in **English** regardless of user language.`;
+
+  return `---\n${fm.join('\n')}\n---\n\n${compiledBy}\n\n${m.identity.trim()}\n\n${i18nBlock}\n`;
 }
 
 // ─── Main ────────────────────────────────────────────────────────────────────
