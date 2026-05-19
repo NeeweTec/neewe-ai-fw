@@ -30,6 +30,20 @@ echo "[build] source:  $SRC_DIR"
 echo "[build] target:  $TARGET_DIR"
 echo ""
 
+# Step 0 — compile manifests → src/neewe-core/agents/*.md (EP-OPUS-1).
+if [ -d "${FW_ROOT}/src/manifests" ]; then
+  echo "[build] compiling agent manifests..."
+  if command -v node >/dev/null 2>&1; then
+    node "${FW_ROOT}/build/compile-manifests.js" || {
+      echo "[build] ERROR: manifest compile failed" >&2
+      exit 1
+    }
+  else
+    echo "[build] WARN: node not found — skipping manifest compile (agent .md files may be stale)" >&2
+  fi
+  echo ""
+fi
+
 # Preserve marketplace-only files (.claude-plugin/plugin.json, README.md).
 # Copy the rest verbatim.
 for item in skills agents hooks output-styles monitors bin dashboard settings.json; do
