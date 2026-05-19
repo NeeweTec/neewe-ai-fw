@@ -21,10 +21,10 @@
 The 4 Phase-01 pre-configured squads need their agents. Ship them in order of leverage:
 
 - [x] **`governance-tech-lead`** (L6, opus, reviewer-with-bash) — done.
-- [ ] **`governance-qa`** (L6, sonnet, reviewer-with-bash) — `qa-expert` from SUB catalog adapted.
-- [ ] **`governance-po`** (L6, haiku + sonnet pair, read-only) — `product-manager` + `project-idea-validator` from SUB.
-- [ ] **`governance-cso`** (L6, opus, reviewer-with-bash) — security audit.
-- [ ] **`neewe-opus-planner`** (L1, opus, read-only) — full XML skeleton + Devin `<think>` 10 triggers + Karpathy K4 plan format.
+- [x] **`governance-qa`** (L6, sonnet, reviewer-with-bash) — done. 8 verification dimensions + test-quality audit + behavioral-coverage focus + false-positive catalog.
+- [x] **`governance-po`** (L6, sonnet, research) — done. Dual-mode (PRIMARY collaborative / ADVERSARIAL fatal-flaw) + 6 YC forcing questions + anti-sycophancy rule.
+- [ ] **`governance-cso`** (L6, opus, reviewer-with-bash) — security audit (deferred to Sprint 3).
+- [x] **`neewe-opus-planner`** (L1, opus, research) — done. Mandatory `<think>` 10 triggers + preliminary info gathering + 20-min task granularity + multi-interpretation surfacing + push-back rule.
 - [ ] **`neewe-pre-report-gate`** as a **skill** (not agent) — universal preamble for analytical agents.
 - [ ] **`neewe-assumptions-analyzer`** (L1, sonnet) — Confident/Likely/Unclear evidence classification.
 - [ ] **`neewe-squad-composer`** (L2, opus, read-only) — reads project state + recommends squad from catalog.
