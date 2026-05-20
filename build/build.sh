@@ -46,7 +46,7 @@ fi
 
 # Preserve marketplace-only files (.claude-plugin/plugin.json, README.md).
 # Copy the rest verbatim.
-for item in skills agents hooks output-styles monitors bin dashboard settings.json; do
+for item in skills agents commands hooks output-styles monitors bin dashboard i18n tui templates settings.json; do
   src="$SRC_DIR/$item"
   if [ -e "$src" ]; then
     if [ -d "$src" ]; then
